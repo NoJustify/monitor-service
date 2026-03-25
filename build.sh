@@ -1,8 +1,10 @@
 #!/bin/bash
 set -e
 
-echo "Copy .env"
-cp .env.example .env
+if [ ! -f .env ]; then
+    echo "Error: .env file not found. Create it from .env.example first."
+    exit 1
+fi
 
 echo "Build docker compose"
 docker compose build

@@ -1,11 +1,11 @@
 # Monitor Service
 
-Система моніторингу доступності веб-сайтів та доменів з підтримкою сповіщень через Email та Telegram.
+Система моніторингу доступності доменів з підтримкою сповіщень через Email та Telegram.
 
 Загальні відомості
 * Backend: Laravel 13
 * База даних: MySQL 8.4
-* Фронтенд: Vue/Inertia.js (Повністю згенерований AI)
+* Фронтенд: Vue/Inertia.js/Tailwind CSS (Повністю згенерований AI)
 * Запуск локальний запуск на Docker (пересклав sail)/Віддалений запуск Docker + nginx з https 
 * Система контролю версій: GitHub з мінімальним CI/CD для деплою на хостинг (self-hosted runner)
 * Хостинг VPS Kamatera/Домен nic.ua
@@ -24,12 +24,14 @@
 
 ## Локальний запуск
 
+#### 1. Клонування репозиторію
 ```shell
 git clone git@github.com:NoJustify/monitor-service.git && cd monitor-service
 ```
+#### 2. Налаштування середовища
+Створити .env з .env.example
 
-Створити .env
-
+#### 3. Побудова docker для першого запуску
 ```shell
 chmod +x build.sh && ./build.sh
 ```

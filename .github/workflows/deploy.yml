@@ -1,0 +1,53 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  WORK_DIR: /home/monitor-service/www
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, monitor-service-tag]
+    defaults:
+      run:
+        working-directory: ${{ env.WORK_DIR }}
+
+    steps:
+      - name: Pull latest code
+        run: git pull origin main
+
+      - name: Update .env
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+        run: echo "$ENV_FILE" > .env
+
+      - name: Start containers
+        run: docker compose up -d
+
+      - name: Install PHP dependencies
+        run: docker compose exec -T www composer install --no-interaction
+
+      - name: Install Node dependencies
+        run: docker compose exec -T www npm ci
+
+      - name: Build frontend
+        run: docker compose exec -T www npm run build
+
+      - name: Run migrations
+        run: docker compose exec -T www php artisan migrate
+
+      - name: Cache config
+        run: |
+          docker compose exec -T www php artisan optimize:clear
+          docker compose exec -T www php artisan config:cache
+          docker compose exec -T www php artisan route:cache
+          docker compose exec -T www php artisan view:cache
+
+      - name: Restart queue workers
+        run: docker compose restart horizon scheduler
+
+      - name: Done
+        run: echo "✅ Deployed successfully!"

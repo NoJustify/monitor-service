@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Enums\CheckHttpMethod;
 use App\Enums\NotifyChannel;
+use App\Http\Requests\StoreDomainRequest;
+use App\Http\Requests\UpdateDomainRequest;
 use App\Models\Domain;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -34,21 +35,9 @@ class DomainController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreDomainRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'url' => ['required', 'url', 'max:255'],
-            'name' => ['nullable', 'string', 'max:255'],
-            'check_interval' => ['required', 'integer', 'min:1', 'max:1440'],
-            'timeout' => ['required', 'integer', 'min:1', 'max:60'],
-            'http_method' => ['required', 'in:GET,HEAD'],
-            'expected_content' => ['nullable', 'string', 'max:1000'],
-            'notify_channel' => ['required', 'in:email,telegram,both,none'],
-            'is_active' => ['boolean'],
-            'history_days' => ['required', 'integer', 'min:1', 'max:365'],
-        ]);
-
-        Auth::user()->domains()->create($validated);
+        Auth::user()->domains()->create($request->validated());
 
         return redirect()->route('domains.index')
             ->with('success', 'Domain created successfully.');
@@ -76,23 +65,9 @@ class DomainController extends Controller
         ]);
     }
 
-    public function update(Request $request, Domain $domain): RedirectResponse
+    public function update(UpdateDomainRequest $request, Domain $domain): RedirectResponse
     {
-        $this->authorize('update', $domain);
-
-        $validated = $request->validate([
-            'url' => ['required', 'url', 'max:255'],
-            'name' => ['nullable', 'string', 'max:255'],
-            'check_interval' => ['required', 'integer', 'min:1', 'max:1440'],
-            'timeout' => ['required', 'integer', 'min:1', 'max:60'],
-            'http_method' => ['required', 'in:GET,HEAD'],
-            'expected_content' => ['nullable', 'string', 'max:1000'],
-            'notify_channel' => ['required', 'in:email,telegram,both,none'],
-            'is_active' => ['boolean'],
-            'history_days' => ['required', 'integer', 'min:1', 'max:365'],
-        ]);
-
-        $domain->update($validated);
+        $domain->update($request->validated());
 
         return redirect()->route('domains.index')
             ->with('success', 'Domain updated successfully.');
